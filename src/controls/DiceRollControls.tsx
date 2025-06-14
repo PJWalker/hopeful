@@ -249,7 +249,7 @@ function DicePickedControls() {
       >
         <Tooltip title="Clear" disableInteractive>
           <IconButton
-            onClick={(e: MouseEvent) => {
+            onClick={(e: any) => {
               e.stopPropagation();
               handleReset();
             }}
@@ -264,8 +264,7 @@ function DicePickedControls() {
           top: 12,
           left: 24,
         }}
-      >
-      </Stack>
+      ></Stack>
       <Stack
         sx={{
           position: "absolute",
