@@ -18,7 +18,7 @@ import {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-const DRAG_HEIGHT = 0.5;
+const DRAG_HEIGHT = 1.0;
 const DRAG_HISTORY_WINDOW_SIZE = 5;
 
 type DragState = { p: { x: number; z: number }; t: number };

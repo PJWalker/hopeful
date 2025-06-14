@@ -20,10 +20,18 @@ export function PlayerAvatar({
 
   const theme = useTheme();
 
+  const dualityMarker: string = finalValue?.duality?.[0] || "";
+  let badge = null;
+  if (finalValue?.duality === "CRIT") {
+    badge = "CRIT";
+  } else {
+    badge = finalValue?.total + dualityMarker;
+  }
+
   return (
     <Stack alignItems="center" my={0.5}>
       <Badge
-        badgeContent={finishedRolling ? finalValue : null}
+        badgeContent={finishedRolling ? badge : null}
         showZero
         overlap="circular"
         anchorOrigin={{

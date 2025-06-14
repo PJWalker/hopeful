@@ -18,15 +18,14 @@ import { WeightClass } from "../types/WeightClass";
 
 export function PreviewDiceRoll() {
   const counts = useDiceControlsStore((state) => state.diceCounts);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
   const diceById = useDiceControlsStore((state) => state.diceById);
   const defaultDiceCounts = useDiceControlsStore(
     (state) => state.defaultDiceCounts
   );
 
   const diceRoll = useMemo<DiceRoll>(() => {
-    return { dice: getDiceToRoll(counts, advantage, diceById) };
-  }, [counts, advantage, diceById]);
+    return { dice: getDiceToRoll(counts, diceById) };
+  }, [counts, diceById]);
 
   const dice = useMemo(() => getDieFromDice(diceRoll), [diceRoll]);
 
@@ -54,7 +53,7 @@ export function PreviewDiceRoll() {
   const listener = useAudioListener();
 
   const diceWeight = useMemo<WeightClass>(() => {
-    if (dice.length > 0 && dice[0].style === "IRON") {
+    if (dice.length > 0 && dice[0].type === "HOPE") {
       return "HEAVY";
     } else {
       return "MEDIUM";

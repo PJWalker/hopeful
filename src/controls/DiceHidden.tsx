@@ -24,7 +24,7 @@ export function DiceHidden() {
   return (
     <Tooltip
       title={hidden ? "Show Roll" : "Hide Roll"}
-      placement="top"
+      placement="right"
       disableInteractive
     >
       <IconButton

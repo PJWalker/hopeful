@@ -29,29 +29,15 @@ export function DicePicker() {
           return null;
         }
         return (
-          <Badge
-            badgeContent={count}
-            sx={{
-              ".MuiBadge-badge": {
-                bgcolor: "background.default",
-                backgroundImage:
-                  "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
-                pointerEvents: "none",
-              },
+          <IconButton
+            onClick={() => {
+              handleDiceCountIncrease(id);
+              clearRollIfNeeded();
             }}
-            overlap="circular"
-            key={id}
+            sx={{ p: 0 }}
           >
-            <IconButton
-              onClick={() => {
-                handleDiceCountIncrease(id);
-                clearRollIfNeeded();
-              }}
-              sx={{ p: 0 }}
-            >
-              <DicePreview diceStyle={die.style} diceType={die.type} />
-            </IconButton>
-          </Badge>
+            <DicePreview diceType={die.type} />
+          </IconButton>
         );
       })}
     </>

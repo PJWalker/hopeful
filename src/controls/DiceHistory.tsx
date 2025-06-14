@@ -7,8 +7,7 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 
-import HistoryIcon from "@mui/icons-material/SavedSearchRounded";
-import NoHistoryIcon from "@mui/icons-material/ManageSearchRounded";
+import HistoryIcon from "@mui/icons-material/History";
 
 import { useDiceRollStore } from "../dice/store";
 import { RecentRoll, useDiceHistoryStore } from "./history";
@@ -22,17 +21,15 @@ export function DiceHistory() {
 
   const hidden = useDiceControlsStore((state) => state.diceHidden);
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
-  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
   );
 
   function handleRoll(roll: RecentRoll) {
-    const dice = getDiceToRoll(roll.counts, roll.advantage, roll.diceById);
+    const dice = getDiceToRoll(roll.counts, roll.diceById);
     startRoll({ dice, bonus: roll.bonus, hidden });
     resetDiceCounts();
     setBonus(0);
-    setAdvantage(null);
     handleClose();
   }
 
@@ -126,7 +123,6 @@ function RecentRollChip({
               <Stack key={id} direction="row" alignItems="center" gap={0.25}>
                 {count}{" "}
                 <DicePreview
-                  diceStyle={die.style}
                   diceType={die.type}
                   size="small"
                 />
@@ -138,9 +134,6 @@ function RecentRollChip({
               {recentRoll.bonus > 0 && "+"}
               {recentRoll.bonus}
             </span>
-          )}
-          {recentRoll.advantage !== null && (
-            <span>{recentRoll.advantage === "ADVANTAGE" ? "Adv" : "Dis"}</span>
           )}
         </Stack>
       }
@@ -176,7 +169,7 @@ function EmptyMessage() {
           p: 1,
         }}
       >
-        <NoHistoryIcon />
+        <HistoryIcon />
       </Box>
       <Typography variant="h6">No History</Typography>
       <Typography variant="caption" textAlign="center">

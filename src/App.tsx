@@ -9,7 +9,7 @@ export function App() {
     <Container disableGutters maxWidth="md">
       <Stack direction="row" justifyContent="center">
         <Sidebar />
-        <InteractiveTray />
+          <InteractiveTray />
       </Stack>
     </Container>
   );

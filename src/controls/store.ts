@@ -1,12 +1,11 @@
-import create from "zustand";
+import {create} from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { diceSets } from "../sets/diceSets";
 import { Dice } from "../types/Dice";
 import { DiceSet } from "../types/DiceSet";
 import { Die } from "../types/Die";
 import { generateDiceId } from "../helpers/generateDiceId";
+import diceSet from "../sets/diceSet";
 
-export type Advantage = "ADVANTAGE" | "DISADVANTAGE" | null;
 export type DiceCounts = Record<string, number>;
 
 interface DiceControlsState {
@@ -15,58 +14,32 @@ interface DiceControlsState {
   defaultDiceCounts: DiceCounts;
   diceCounts: DiceCounts;
   diceBonus: number;
-  diceAdvantage: Advantage;
   diceHidden: boolean;
   diceRollPressTime: number | null;
   fairnessTesterOpen: boolean;
-  changeDiceSet: (diceSet: DiceSet) => void;
   resetDiceCounts: () => void;
   changeDieCount: (id: string, count: number) => void;
   incrementDieCount: (id: string) => void;
   decrementDieCount: (id: string) => void;
-  setDiceAdvantage: (advantage: Advantage) => void;
   setDiceBonus: (bonus: number) => void;
   toggleDiceHidden: () => void;
   setDiceRollPressTime: (time: number | null) => void;
   toggleFairnessTester: () => void;
 }
 
-const initialSet = diceSets[0];
-const initialDiceCounts = getDiceCountsFromSet(initialSet);
-const initialDiceById = getDiceByIdFromSet(initialSet);
+const initialDiceCounts = getDiceCountsFromSet(diceSet);
+const initialDiceById = getDiceByIdFromSet(diceSet);
 
 export const useDiceControlsStore = create<DiceControlsState>()(
   immer((set) => ({
-    diceSet: initialSet,
+    diceSet,
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
     diceCounts: initialDiceCounts,
     diceBonus: 0,
-    diceAdvantage: null,
     diceHidden: false,
     diceRollPressTime: null,
     fairnessTesterOpen: false,
-    changeDiceSet(diceSet) {
-      set((state) => {
-        const counts: DiceCounts = {};
-        const prevCounts = state.diceCounts;
-        const prevDice = state.diceSet.dice;
-        for (let i = 0; i < diceSet.dice.length; i++) {
-          const die = diceSet.dice[i];
-          const prevDie = prevDice[i];
-          // Carry over count if the index and die type match
-          if (prevDie && prevDie.type === die.type) {
-            counts[die.id] = prevCounts[prevDie.id] || 0;
-          } else {
-            counts[die.id] = 0;
-          }
-        }
-        state.diceCounts = counts;
-        state.diceSet = diceSet;
-        state.defaultDiceCounts = getDiceCountsFromSet(diceSet);
-        state.diceById = getDiceByIdFromSet(diceSet);
-      });
-    },
     resetDiceCounts() {
       set((state) => {
         state.diceCounts = state.defaultDiceCounts;
@@ -96,11 +69,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     setDiceBonus(bonus) {
       set((state) => {
         state.diceBonus = bonus;
-      });
-    },
-    setDiceAdvantage(advantage) {
-      set((state) => {
-        state.diceAdvantage = advantage;
       });
     },
     toggleDiceHidden() {
@@ -137,64 +105,60 @@ function getDiceByIdFromSet(diceSet: DiceSet) {
   return byId;
 }
 
-/** Generate new dice based off of a set of counts, advantage and die */
+/** Generate new dice based off of a set of counts and die */
 export function getDiceToRoll(
   counts: DiceCounts,
-  advantage: Advantage,
   diceById: Record<string, Die>
 ) {
-  const dice: (Die | Dice)[] = [];
+  const dice: Die[] = [];
   const countEntries = Object.entries(counts);
   for (const [id, count] of countEntries) {
     const die = diceById[id];
     if (!die) {
       continue;
     }
-    const { style, type } = die;
+    const { type } = die;
     for (let i = 0; i < count; i++) {
-      if (advantage === null) {
-        if (type === "D100") {
+      switch (type) {
+        case "D100":
           // Push a d100 and d10 when rolling a d100
-          dice.push({
-            dice: [
-              { id: generateDiceId(), style, type: "D100" },
-              { id: generateDiceId(), style, type: "D10" },
-            ],
-          });
-        } else {
-          dice.push({ id: generateDiceId(), style, type });
-        }
-      } else {
-        // Rolling with advantage or disadvantage
-        const combination = advantage === "ADVANTAGE" ? "HIGHEST" : "LOWEST";
-        if (type === "D100") {
-          // Push 2 d100s and d10s
-          dice.push({
-            dice: [
-              {
-                dice: [
-                  { id: generateDiceId(), style, type: "D100" },
-                  { id: generateDiceId(), style, type: "D10" },
-                ],
-              },
-              {
-                dice: [
-                  { id: generateDiceId(), style, type: "D100" },
-                  { id: generateDiceId(), style, type: "D10" },
-                ],
-              },
-            ],
-            combination,
-          });
-        } else {
-          dice.push({
-            dice: [
-              { id: generateDiceId(), style, type },
-              { id: generateDiceId(), style, type },
-            ],
-            combination,
-          });
-        }
+          dice.push(
+            { id: generateDiceId(), type: "D100" },
+            { id: generateDiceId(), type: "D10" }
+          );
+          break;
+        case "HOPE":
+          // Push a Fear when rolling Hope
+          dice.push(
+            { id: generateDiceId(), type: "HOPE" },
+            { id: generateDiceId(), type: "FEAR" }
+          );
+          break;
+        case "ADVANTAGE":
+          // Remove the first dice with type 'DISADVANTAGE'
+          const disadvantageIndex = dice.findIndex(
+            (die) => die.type === "DISADVANTAGE"
+          );
+          if (disadvantageIndex !== -1) {
+            dice.splice(disadvantageIndex, 1);
+            break;
+          }
+          dice.push({ id: generateDiceId(), type });
+          break;
+        case "DISADVANTAGE":
+          // Remove the first dice with type 'ADVANTAGE'
+          const advantageIndex = dice.findIndex(
+            (die) => die.type === "ADVANTAGE"
+          );
+          if (advantageIndex !== -1) {
+            dice.splice(advantageIndex, 1);
+            break;
+          }
+          dice.push({ id: generateDiceId(), type });
+          break;
+        default:
+          dice.push({ id: generateDiceId(), type });
+          break;
       }
     }
   }

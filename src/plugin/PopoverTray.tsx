@@ -111,7 +111,18 @@ export function PopoverTray({
               noWrap
             >
               {player?.name}
-              {finishedRolling && <span> | {finalValue}</span>}
+              {finishedRolling && finalValue && (
+                <>
+                  {" "}
+                  |<span> {finalValue.total}</span>
+                  {finalValue.duality && (
+                    <>
+                      <span> with </span>
+                      <span>{finalValue.duality}</span>
+                    </>
+                  )}
+                </>
+              )}
             </Typography>
           </Paper>
         </ButtonBase>

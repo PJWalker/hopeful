@@ -35,11 +35,7 @@ By default other players dice trays will show up as a small preview in the botto
 
 To make a roll privately you can select the eye icon in the sidebar when making a roll.
 
-**Bonus and Advantage**
 
-To add a bonus or advantage/disadvantage to your next roll you can click the +/- icon in the sidebar.
-
-![bonus](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/bonus.jpg)
 
 **Recent Rolls**
 

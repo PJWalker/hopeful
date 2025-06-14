@@ -1,22 +1,14 @@
-import { useState } from "react";
-
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Menu from "@mui/material/Menu";
+import { useRef, useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
-
-import { DieBonus } from "./DieBonus";
-import { DieAdvantage } from "./DieAdvantage";
 import { useDiceControlsStore } from "./store";
 import { useDiceRollStore } from "../dice/store";
+import { Stack, TextField } from "@mui/material";
+import { StatPicker } from "./StatPicker";
 
 export function DiceExtras() {
   const bonus = useDiceControlsStore((state) => state.diceBonus);
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
-  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
-  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
-
+  let delta = useRef(0);
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
   const roll = useDiceRollStore((state) => state.roll);
   function clearRollIfNeeded() {
@@ -26,73 +18,52 @@ export function DiceExtras() {
   }
 
   /** Controls (bonus and adv/dis) */
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(event.currentTarget);
-  }
-  function handleClose() {
-    setAnchorEl(null);
-  }
+
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpen(true);
 
   return (
-    <>
-      <Tooltip title="Bonus" placement="top" disableInteractive>
-        <IconButton
-          aria-label="more"
-          id="more-button"
-          aria-controls={open ? "more-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? "true" : undefined}
-          onClick={handleClick}
-          sx={{ fontSize: "18px" }}
-        >
-          <span style={{ width: "24px", height: "24px" }}>+/-</span>
-        </IconButton>
-      </Tooltip>
-      <Menu
-        id="more-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "more-button",
-        }}
-        anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "center",
-          horizontal: "left",
-        }}
-      >
+    <Tooltip
+      id="more-menu"
+      open={open}
+      onOpen={handleOpen}
+      onClose={handleClose}
+      placement="right-start"
+      leaveDelay={300}
+      title={
         <Stack>
-          <DieBonus
+          <StatPicker
+            close={handleClose}
             bonus={bonus}
             onChange={(bonus) => {
               setBonus(bonus);
               clearRollIfNeeded();
             }}
-            onIncrease={() => {
-              setBonus(bonus + 1);
-              clearRollIfNeeded();
-            }}
-            onDecrease={() => {
-              setBonus(bonus - 1);
-              clearRollIfNeeded();
-            }}
-          />
-          <Divider variant="middle" />
-          <DieAdvantage
-            advantage={advantage}
-            onChange={(advantage) => {
-              setAdvantage(advantage);
-              clearRollIfNeeded();
-            }}
           />
         </Stack>
-      </Menu>
-    </>
+      }
+    >
+      <TextField
+        hiddenLabel
+        size="small"
+        value={bonus}
+        type="number"
+        onWheel={(e) => {
+          delta.current += e.deltaY;
+          if (Math.abs(delta.current) > 100) {
+            setBonus(bonus + Math.sign(delta.current));
+            delta.current = 0;
+          }
+        }}
+        inputProps={{
+          style: {
+            padding: "0.5rem 0.25rem",
+            textAlign: "center",
+          },
+        }}
+        onChange={(e) => setBonus(Number(e.target.value))}
+      />
+    </Tooltip>
   );
 }

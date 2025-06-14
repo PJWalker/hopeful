@@ -13,17 +13,14 @@ import { useAudioListener } from "../audio/AudioListenerProvider";
 import { getNextBuffer } from "../audio/getAudioBuffer";
 import { PhysicalMaterial } from "../types/PhysicalMaterial";
 import { getDieWeightClass } from "../helpers/getDieWeightClass";
-import { getDieDensity } from "../helpers/getDieDensity";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
 import { DiceCollider } from "../colliders/DiceCollider";
 
 /** Minium linear and angular speed before the dice roll is considered finished */
-const MIN_ROLL_FINISHED_SPEED = 0.005;
-/** Cool down in MS before dice audio can get played again */
-const AUDIO_COOLDOWN = 200;
-/** Force stop the physics roll after 5 seconds */
-const MAX_ROLL_TIME = 5000;
+const MIN_ROLL_FINISHED_SPEED = 0.1;
+const AUDIO_COOLDOWN = 100;
+const MAX_ROLL_TIME = 4000;
 
 function magnitude({ x, y, z }: { x: number; y: number; z: number }) {
   return Math.sqrt(x * x + y * y + z * z);
@@ -157,9 +154,8 @@ export function PhysicsDice({
         return;
       }
       const group = ref.current;
-      // TODO: remove conditional when this gets merged https://github.com/pmndrs/react-three-rapier/pull/151/commits
       const physicalMaterial: PhysicalMaterial =
-        rigidBodyObject?.userData?.material || "LEATHER";
+        rigidBodyObject?.userData?.material;
       const linvel = rigidBodyRef.current?.linvel();
       if (group && physicalMaterial && linvel) {
         const speed = magnitude(linvel);
@@ -194,8 +190,8 @@ export function PhysicsDice({
       // Dice are around 10x larger then they should be to account for
       // physics errors when shown at proper size.
       gravityScale={2}
-      density={getDieDensity(die)}
-      friction={0.1}
+      density={1.0}
+      friction={0.0}
       position={position}
       rotation={rotation}
       linearVelocity={linearVelocity}

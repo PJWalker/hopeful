@@ -1,26 +1,28 @@
 import { styled } from "@mui/material/styles";
-
-import { DiceStyle } from "../types/DiceStyle";
 import { DiceType } from "../types/DiceType";
 
-import * as galaxyPreviews from "./galaxy";
-import * as gemstonePreviews from "./gemstone";
-import * as glassPreviews from "./glass";
-import * as ironPreviews from "./iron";
-import * as nebulaPreviews from "./nebula";
-import * as sunrisePreviews from "./sunrise";
-import * as sunsetPreviews from "./sunset";
-import * as walnutPreviews from "./walnut";
+import D4 from "./D4.png";
+import D6 from "./D6.png";
+import D8 from "./D8.png";
+import D10 from "./D10.png";
+import D12 from "./D12.png";
+import D20 from "./D20.png";
+import D100 from "./D100.png";
+import ADVANTAGE from "./ADVANTAGE.png";
+import DISADVANTAGE from "./DISADVANTAGE.png";
+import HOPE from "./HOPE.png";
 
-const previews: Record<DiceStyle, Record<DiceType, string>> = {
-  GALAXY: galaxyPreviews,
-  GEMSTONE: gemstonePreviews,
-  GLASS: glassPreviews,
-  IRON: ironPreviews,
-  NEBULA: nebulaPreviews,
-  SUNRISE: sunrisePreviews,
-  SUNSET: sunsetPreviews,
-  WALNUT: walnutPreviews,
+const icons: Partial<Record<DiceType, string>> = {
+  D4,
+  D6,
+  D8,
+  D10,
+  D12,
+  D20,
+  D100,
+  ADVANTAGE,
+  DISADVANTAGE,
+  HOPE,
 };
 
 interface PreviewImageProps {
@@ -36,16 +38,9 @@ const PreviewImage = styled("img", {
 
 type DiePreviewProps = {
   diceType: DiceType;
-  diceStyle: DiceStyle;
   size?: "small" | "medium" | "large";
 };
 
-export function DicePreview({ diceType, diceStyle, size }: DiePreviewProps) {
-  return (
-    <PreviewImage
-      src={previews[diceStyle][diceType]}
-      alt={`${diceStyle} ${diceType} preview`}
-      size={size}
-    />
-  );
+export function DicePreview({ diceType, size }: DiePreviewProps) {
+  return <PreviewImage src={icons[diceType]} alt={`${diceType}`} size={size} />;
 }
